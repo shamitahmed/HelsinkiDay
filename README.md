@@ -73,4 +73,3 @@ Since the application consists of static HTML, CSS, and JS, you can run it using
 This project is configured for instant deployment to static hosting providers:
 
 * **Vercel**: Deployments are automated via Vercel config. The live production instance is hosted at [helsinkiday.vercel.app](https://helsinkiday.vercel.app/).
-* **GitHub Pages**: You can host it directly from your repository by enabling GitHub Pages in your repository settings under **Settings > Pages > Deploy from branch**.
