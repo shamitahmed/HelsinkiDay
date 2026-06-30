@@ -4,8 +4,6 @@ An interactive, responsive geospatial web application designed to help locals an
 
 The project is fully optimized for public use, requiring **no API keys or tokens** for its default deployment. It also includes an offline backup version powered by CesiumJS for advanced 3D visualization.
 
----
-
 <img width="1268" height="602" alt="hd1" src="https://github.com/user-attachments/assets/0be28273-c584-472d-912e-df49b36db983" />
 
 ## 🌟 Key Features
