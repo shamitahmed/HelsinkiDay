@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helsinki Day Event Explorer (Free Version)</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Explore Helsinki Day events around the city in an interactive map with custom geospatial visualization. 100% free and open-source.">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Fonts and Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- MapLibre GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@4.3.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@4.3.0/dist/maplibre-gl.css" rel="stylesheet">
+    
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="styles.css?v=20">
+</head>
+<body>
+
+    <!-- Celebration Ticker Banner -->
+    <div class="ticker-banner" id="ticker-banner">
+        <div class="ticker-text">🥳 🎉 Happy Helsinki Day 2026 🥳 🎉</div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="app-header" id="app-header">
+        <div class="brand-section">
+            <h1 class="brand-title" id="main-heading">Helsinki Day 2026</h1>
+            <span class="brand-badge" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.25); color: var(--accent-success);">Open Source</span>
+        </div>
+        
+        <div class="header-actions">
+            <button class="btn-header" id="btn-lang-toggle" title="Switch Language">
+                <i class="fa-solid fa-language"></i> EN
+            </button>
+            <button class="btn-header" id="btn-user-location" title="Find My Location">
+                <i class="fa-solid fa-location-arrow"></i> My Location
+            </button>
+            <button class="btn-header" id="btn-recenter" title="Recenter Camera">
+                <i class="fa-solid fa-crosshairs"></i> Recenter
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        
+        <!-- Sidebar for Search & Event List -->
+        <section class="sidebar" id="sidebar-panel" aria-label="Event Sidebar">
+            
+            <!-- Search & Filters Panel -->
+            <div class="search-filter-panel">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-bar" class="search-input" placeholder="Search Helsinki Day events..." aria-label="Search events">
+                </div>
+                
+                <!-- Horizontal scrolling categories -->
+                <div class="categories-scroll" id="categories-container" role="tablist" aria-label="Event Categories">
+                    <button class="category-pill active" data-category="all" role="tab" aria-selected="true">All Events</button>
+                    <!-- JavaScript will dynamically insert other category pills here -->
+                </div>
+                
+                <!-- Static Filter Information Badge -->
+                <div class="filters-info-badge" aria-label="Applied Filters">
+                    <span><i class="fa-regular fa-calendar"></i> Friday, June 12</span>
+                    <span><i class="fa-solid fa-ticket"></i> Free Admission</span>
+                </div>
+                
+                <!-- Statistics overlay -->
+                <div class="stats-bar">
+                    <span id="stats-total">Loading events...</span>
+                    <span id="stats-filtered"></span>
+                </div>
+            </div>
+            
+            <!-- Visited Progress Bar Gamification -->
+            <div class="visited-progress-container" id="visited-progress-panel">
+                <div class="progress-header">
+                    <span class="progress-title" id="text-visited-title"><i class="fa-solid fa-trophy"></i> Explorer Progress</span>
+                    <span class="progress-count" id="visited-count-text">0 / 0 Visited</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="visited-progress-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+            
+            <!-- List area for events -->
+            <div class="event-list" id="event-list-container" role="list">
+                <!-- Skeleton cards while loading -->
+                <div style="text-align: center; padding: 40px 0; color: var(--text-secondary);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px; color: var(--accent-blue);"></i>
+                    <p>Loading Helsinki Day event data...</p>
+                </div>
+            </div>
+            
+        </section>
+
+        <!-- Map area -->
+        <section class="map-wrapper" aria-label="Map View">
+            <div id="map"></div>
+            
+            <!-- Floating Hover Tooltip -->
+            <div id="map-hover-tooltip" class="map-tooltip-card" style="display: none;">
+                <img id="tooltip-img" class="tooltip-hero-img" src="" alt="Event Image">
+                <div class="tooltip-body">
+                    <h4 id="tooltip-title" class="tooltip-title">Event Title</h4>
+                    <p id="tooltip-venue" class="tooltip-venue"><i class="fa-solid fa-map-location-dot"></i> Venue</p>
+                </div>
+            </div>
+            
+            <!-- Custom Map Controls Overlay -->
+            <div class="map-controls-overlay">
+                <div class="control-btn-group" id="style-switcher-group">
+                    <button class="control-btn active" id="btn-style-streets" title="Color Streets Map"><i class="fa-solid fa-map"></i></button>
+                    <button class="control-btn" id="btn-style-satellite" title="Satellite Map"><i class="fa-solid fa-image"></i></button>
+                    <button class="control-btn" id="btn-style-dark" title="Grayscale Light Map"><i class="fa-solid fa-lightbulb"></i></button>
+                </div>
+                
+                <div class="control-btn-group">
+                    <button class="control-btn" id="btn-zoom-in" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+                    <button class="control-btn" id="btn-zoom-out" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+                </div>
+                
+                <div class="control-btn-group">
+                    <button class="control-btn" id="btn-toggle-3d" title="Toggle 3D View"><i class="fa-solid fa-building"></i></button>
+                    <button class="control-btn" id="btn-reset-north" title="Reset Direction"><i class="fa-solid fa-compass"></i></button>
+                </div>
+            </div>
+            
+            <!-- Floating Distance Card Overlay -->
+            <div class="map-distance-card" id="map-distance-panel" style="display: none;">
+                <div class="distance-header">
+                    <span class="distance-title"><i class="fa-solid fa-route-highway animate-pulse"></i> Route Active</span>
+                    <button class="distance-close-btn" id="distance-card-close" title="Clear Route">&times;</button>
+                </div>
+                <div class="distance-body">
+                    <div class="distance-value-wrapper">
+                        <span class="distance-label">Distance</span>
+                        <span class="distance-value" id="map-distance-value">0.0 km</span>
+                    </div>
+                    <div class="distance-divider"></div>
+                    <div class="distance-time-wrapper">
+                        <span class="distance-label">Est. Walk</span>
+                        <span class="distance-time" id="map-distance-time">0 min</span>
+                    </div>
+                </div>
+                <div class="distance-destination" id="map-distance-dest">To: Event Name</div>
+            </div>
+
+            <!-- Explore Mode HUD Overlay -->
+            <div class="explore-hud-card" id="explore-hud-panel" style="display: none;">
+                <div class="hud-header">
+                    <span class="hud-title"><i class="fa-solid fa-person-walking animate-pulse"></i> Keyboard Pan & Orbit</span>
+                </div>
+                <div class="hud-body">
+                    <div class="hud-control-row">
+                        <span class="hud-action">Pan Map</span>
+                        <div class="keycap-group">
+                            <kbd class="keycap">W</kbd>
+                            <kbd class="keycap">A</kbd>
+                            <kbd class="keycap">S</kbd>
+                            <kbd class="keycap">D</kbd>
+                        </div>
+                    </div>
+                    <div class="hud-control-row">
+                        <span class="hud-action">Rotate Map</span>
+                        <div class="keycap-group">
+                            <kbd class="keycap">Q</kbd>
+                            <kbd class="keycap">E</kbd>
+                            <span style="color: var(--text-muted); font-size: 0.7rem;">or</span>
+                            <kbd class="keycap"><i class="fa-solid fa-arrow-left"></i></kbd>
+                            <kbd class="keycap"><i class="fa-solid fa-arrow-right"></i></kbd>
+                        </div>
+                    </div>
+                    <div class="hud-control-row">
+                        <span class="hud-action">Tilt Up / Down</span>
+                        <div class="keycap-group">
+                            <kbd class="keycap">R</kbd>
+                            <kbd class="keycap">F</kbd>
+                            <span style="color: var(--text-muted); font-size: 0.7rem;">or</span>
+                            <kbd class="keycap"><i class="fa-solid fa-arrow-up"></i></kbd>
+                            <kbd class="keycap"><i class="fa-solid fa-arrow-down"></i></kbd>
+                        </div>
+                    </div>
+                </div>
+                <div class="hud-footer">Right-click & drag to orbit | Scroll to zoom</div>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- Event Details Modal -->
+    <div class="modal-overlay" id="details-modal" role="dialog" aria-modal="true" aria-labelledby="detail-title-label">
+        <div class="modal-window detail-window">
+            <div class="detail-header-hero">
+                <img id="detail-img" class="detail-hero-img" src="" alt="Event Image">
+                <div class="detail-hero-overlay"></div>
+                <button class="detail-modal-close" id="details-close" aria-label="Close details">&times;</button>
+            </div>
+            
+            <div class="detail-content">
+                <h2 class="detail-title" id="detail-title-label">Event Name</h2>
+                
+                <!-- Information Grid -->
+                <div class="detail-meta-grid">
+                    <div class="meta-item">
+                        <div class="meta-item-icon"><i class="fa-regular fa-clock"></i></div>
+                        <div class="meta-item-content">
+                            <span class="meta-item-label">Time</span>
+                            <span class="meta-item-value" id="detail-time">10:00 - 12:00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="meta-item">
+                        <div class="meta-item-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                        <div class="meta-item-content">
+                            <span class="meta-item-label">Venue</span>
+                            <span class="meta-item-value" id="detail-venue">Esplanadin Lava</span>
+                        </div>
+                    </div>
+                    
+                    <div class="meta-item">
+                        <div class="meta-item-icon"><i class="fa-solid fa-location-dot"></i></div>
+                        <div class="meta-item-content">
+                            <span class="meta-item-label">Address</span>
+                            <span class="meta-item-value" id="detail-address">Pohjoisesplanadi, 00130 Helsinki</span>
+                        </div>
+                    </div>
+                    
+                    <div class="meta-item">
+                        <div class="meta-item-icon"><i class="fa-solid fa-ticket"></i></div>
+                        <div class="meta-item-content">
+                            <span class="meta-item-label">Admission</span>
+                            <span class="meta-item-value" id="detail-price">Free</span>
+                        </div>
+                    </div>
+                    <div class="meta-item" id="detail-distance-row" style="display: none;">
+                        <div class="meta-item-icon"><i class="fa-solid fa-route"></i></div>
+                        <div class="meta-item-content">
+                            <span class="meta-item-label">Distance from You</span>
+                            <span class="meta-item-value" id="detail-distance">0.0 km</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <div class="detail-description" id="detail-desc">
+                    Detailed text about the event...
+                </div>
+                
+                <!-- Category Tags Row -->
+                <div class="detail-tags" id="detail-tags-container">
+                    <!-- Dynamic badges go here -->
+                </div>
+                
+                <!-- Actions -->
+                <div class="detail-action-bar">
+                    <button id="detail-btn-visited" class="btn-detail-action secondary visited-btn">
+                        <i class="fa-regular fa-square-check"></i> Mark Visited
+                    </button>
+                    <a id="detail-link-website" class="btn-detail-action btn-primary" href="#" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Visit Event Website
+                    </a>
+                    <button id="detail-btn-show-map" class="btn-detail-action secondary">
+                        <i class="fa-solid fa-location-crosshairs"></i> Fly to Map Location
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script src="app.js?v=20"></script>
+</body>
+</html>
