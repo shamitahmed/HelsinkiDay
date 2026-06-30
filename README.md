@@ -4,7 +4,7 @@ An interactive, responsive geospatial web application designed to help locals an
 
 The project is fully optimized for public use, requiring **no API keys or tokens** for its default deployment. It also includes an offline backup version powered by CesiumJS for advanced 3D visualization.
 
-<img width="350" height="197" alt="helsinki" src="https://github.com/user-attachments/assets/402b9984-f8a5-42d2-8856-17056e37eb34" />
+<img width="700" height="400" alt="helsinki" src="https://github.com/user-attachments/assets/402b9984-f8a5-42d2-8856-17056e37eb34" />
 
 ## 🌟 Key Features
 
