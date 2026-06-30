@@ -6,6 +6,8 @@ The project is fully optimized for public use, requiring **no API keys or tokens
 
 ---
 
+<img width="1268" height="602" alt="hd1" src="https://github.com/user-attachments/assets/0be28273-c584-472d-912e-df49b36db983" />
+
 ## 🌟 Key Features
 
 * **Interactive Geospatial Visualizer**: Browse events on a fast, modern map with seamless zoom, panning, and automatic fly-to animations.
